@@ -42,6 +42,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,7 +85,12 @@ fun GameScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(mediumPadding)
+                .padding(mediumPadding),
+            onUserGuessChanged = { gameViewModel.updateUserGuess(it) },
+            userGuess = gameViewModel.userGuess,
+            onKeyboardDone = {
+                currentScrambledWord = gameUiState.currentScrambledWord
+            }
         )
         Column(
             modifier = Modifier
@@ -135,6 +141,8 @@ fun GameStatus(score: Int, modifier: Modifier = Modifier) {
 @Composable
 fun GameLayout(
     currentScrambledWord: String,
+    onKeyboardDone: () -> Unit,
+    onUserGuessChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val mediumPadding = dimensionResource(R.dimen.padding_medium)
@@ -168,7 +176,7 @@ fun GameLayout(
                 style = typography.titleMedium
             )
             OutlinedTextField(
-                value = "",
+                value = userGuess,
                 singleLine = true,
                 shape = shapes.large,
                 modifier = Modifier.fillMaxWidth(),
@@ -177,14 +185,14 @@ fun GameLayout(
                     unfocusedContainerColor = colorScheme.surface,
                     disabledContainerColor = colorScheme.surface,
                 ),
-                onValueChange = { },
+                onValueChange = onUserGuessChanged,
                 label = { Text(stringResource(R.string.enter_your_word)) },
                 isError = false,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { }
+                    onDone = { onKeyboardDone() }
                 )
             )
         }
